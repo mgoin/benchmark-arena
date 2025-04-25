@@ -72,10 +72,17 @@
     </header>
 
     <main class="flex-grow max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
-        <!-- Configuration and Summary Grid -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-            <!-- Configuration Panel -->
-            <div class="bg-white p-4 rounded-lg shadow lg:col-span-1">
+        <!-- Tabs -->
+        <div class="flex space-x-4 mb-6">
+            <button id="tab-chat" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Chat</button>
+            <button id="tab-setup"
+                class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">Setup</button>
+            <button id="tab-history"
+                class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">History</button>
+        </div>
+        <!-- Setup Section -->
+        <div id="setup-section" class="hidden">
+            <div class="bg-white p-4 rounded-lg shadow">
                 <h2 class="text-lg font-medium text-gray-900 mb-3">Configuration</h2>
                 <div class="space-y-3">
                     <div class="grid grid-cols-2 gap-3">
@@ -107,7 +114,7 @@
                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border text-sm">
                         </div>
                     </div>
-                    <div>
+                    <div class="mt-3">
                         <button id="connect-btn"
                             class="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition text-sm">
                             <i class="fas fa-plug mr-2"></i>Connect to Models
@@ -115,20 +122,37 @@
                     </div>
                 </div>
             </div>
-
+        </div>
+        <!-- History Section -->
+        <div id="history-section" class="hidden">
+            <div class="bg-white p-4 rounded-lg shadow">
+                <h2 class="text-lg font-medium text-gray-900 mb-3">Benchmark History</h2>
+                <div class="overflow-auto max-h-96">
+                    <table class="min-w-full table-auto text-sm">
+                        <thead>
+                            <tr>
+                                <th class="px-2 py-1 text-left">Time</th>
+                                <th class="px-2 py-1 text-left">Baseline ITL (ms)</th>
+                                <th class="px-2 py-1 text-left">Quantized ITL (ms)</th>
+                                <th class="px-2 py-1 text-left">Baseline t/s</th>
+                                <th class="px-2 py-1 text-left">Quantized t/s</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!-- Chat Section -->
+        <div id="chat-section">
             <!-- Summary Statistics -->
-            <div class="bg-white p-4 rounded-lg shadow lg:col-span-2">
+            <div class="bg-white p-4 rounded-lg shadow">
                 <h2 class="text-lg font-medium text-gray-900 mb-3">Performance Summary</h2>
-                <div class="grid grid-cols-4 gap-3 mb-3">
+                <div class="grid grid-cols-3 gap-3 mb-3">
                     <div class="stat-card bg-blue-50 p-3 rounded-lg border border-blue-100">
                         <div class="text-sm font-medium text-blue-800">Speed</div>
                         <div id="speed-improvement" class="text-xl font-bold text-blue-900">-</div>
                         <div class="text-xs text-blue-600">Tokens/second</div>
-                    </div>
-                    <div class="stat-card bg-purple-50 p-3 rounded-lg border border-purple-100">
-                        <div class="text-sm font-medium text-purple-800">Memory</div>
-                        <div id="memory-reduction" class="text-xl font-bold text-purple-900">-</div>
-                        <div class="text-xs text-purple-600">Model size</div>
                     </div>
                     <div class="stat-card bg-green-50 p-3 rounded-lg border border-green-100">
                         <div class="text-sm font-medium text-green-800">TTFT</div>
@@ -145,113 +169,113 @@
                     <canvas id="performance-chart" height="120"></canvas>
                 </div>
             </div>
-        </div>
 
-        <!-- Chat Comparison -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-            <!-- Baseline Model -->
-            <div class="bg-white rounded-lg shadow overflow-hidden">
-                <div class="bg-gray-800 text-white px-4 py-3 flex justify-between items-center">
+            <!-- Chat Comparison -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                <!-- Baseline Model -->
+                <div class="bg-white rounded-lg shadow overflow-hidden">
+                    <div class="bg-gray-800 text-white px-4 py-3 flex justify-between items-center">
+                        <div>
+                            <span id="baseline-model-name" class="font-medium">Baseline Model</span>
+                            <span id="baseline-model-size" class="text-xs text-gray-300 ml-2">-</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span id="baseline-status"
+                                class="text-xs px-2 py-1 rounded-full bg-gray-600">Disconnected</span>
+                        </div>
+                    </div>
+                    <div id="baseline-chat" class="h-96 overflow-y-auto p-4 space-y-4 bg-gray-50">
+                        <div class="text-center text-gray-500 py-10">
+                            <i class="fas fa-robot text-4xl mb-2"></i>
+                            <p>Connect to baseline model to start benchmarking</p>
+                        </div>
+                    </div>
+                    <div class="bg-gray-100 px-4 py-2 border-t border-gray-200">
+                        <div class="grid grid-cols-3 gap-2 text-xs">
+                            <div>
+                                <div class="text-gray-500">TTFT</div>
+                                <div id="baseline-ttft" class="font-medium">- ms</div>
+                            </div>
+                            <div>
+                                <div class="text-gray-500">ITL</div>
+                                <div id="baseline-itl" class="font-medium">- ms</div>
+                            </div>
+                            <div>
+                                <div class="text-gray-500">Throughput</div>
+                                <div id="baseline-throughput" class="font-medium">- t/s</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quantized Model -->
+                <div class="bg-white rounded-lg shadow overflow-hidden">
+                    <div class="bg-red-800 text-white px-4 py-3 flex justify-between items-center">
+                        <div>
+                            <span id="quantized-model-name" class="font-medium">Quantized Model</span>
+                            <span id="quantized-model-size" class="text-xs text-red-300 ml-2">-</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span id="quantized-status"
+                                class="text-xs px-2 py-1 rounded-full bg-red-600">Disconnected</span>
+                        </div>
+                    </div>
+                    <div id="quantized-chat" class="h-96 overflow-y-auto p-4 space-y-4 bg-red-50">
+                        <div class="text-center text-red-500 py-10">
+                            <i class="fas fa-bolt text-4xl mb-2"></i>
+                            <p>Connect to quantized model to start benchmarking</p>
+                        </div>
+                    </div>
+                    <div class="bg-red-100 px-4 py-2 border-t border-red-200">
+                        <div class="grid grid-cols-3 gap-2 text-xs">
+                            <div>
+                                <div class="text-red-500">TTFT</div>
+                                <div id="quantized-ttft" class="font-medium">- ms</div>
+                            </div>
+                            <div>
+                                <div class="text-red-500">ITL</div>
+                                <div id="quantized-itl" class="font-medium">- ms</div>
+                            </div>
+                            <div>
+                                <div class="text-red-500">Throughput</div>
+                                <div id="quantized-throughput" class="font-medium">- t/s</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Input Area -->
+            <div class="bg-white rounded-lg shadow p-4">
+                <div class="flex space-x-4">
+                    <div class="flex-grow">
+                        <textarea id="user-input" rows="2"
+                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3 border"
+                            placeholder="Type your message here..."></textarea>
+                    </div>
                     <div>
-                        <span id="baseline-model-name" class="font-medium">Baseline Model</span>
-                        <span id="baseline-model-size" class="text-xs text-gray-300 ml-2">-</span>
+                        <button id="send-btn"
+                            class="h-full bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 transition disabled:opacity-50"
+                            disabled>
+                            <i class="fas fa-paper-plane mr-2"></i>Send
+                        </button>
+                    </div>
+                </div>
+                <div class="mt-2 flex justify-between items-center text-xs text-gray-500">
+                    <div>
+                        <span id="token-count">0</span> tokens
                     </div>
                     <div class="flex items-center space-x-2">
-                        <span id="baseline-status"
-                            class="text-xs px-2 py-1 rounded-full bg-gray-600">Disconnected</span>
-                    </div>
-                </div>
-                <div id="baseline-chat" class="h-96 overflow-y-auto p-4 space-y-4 bg-gray-50">
-                    <div class="text-center text-gray-500 py-10">
-                        <i class="fas fa-robot text-4xl mb-2"></i>
-                        <p>Connect to baseline model to start benchmarking</p>
-                    </div>
-                </div>
-                <div class="bg-gray-100 px-4 py-2 border-t border-gray-200">
-                    <div class="grid grid-cols-3 gap-2 text-xs">
-                        <div>
-                            <div class="text-gray-500">TTFT</div>
-                            <div id="baseline-ttft" class="font-medium">- ms</div>
-                        </div>
-                        <div>
-                            <div class="text-gray-500">ITL</div>
-                            <div id="baseline-itl" class="font-medium">- ms</div>
-                        </div>
-                        <div>
-                            <div class="text-gray-500">Throughput</div>
-                            <div id="baseline-throughput" class="font-medium">- t/s</div>
-                        </div>
+                        <span>Streaming:</span>
+                        <label class="inline-flex items-center">
+                            <input type="checkbox" id="stream-toggle" checked
+                                class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-offset-0 focus:ring-blue-200 focus:ring-opacity-50">
+                            <span class="ml-2">Enabled</span>
+                        </label>
                     </div>
                 </div>
             </div>
-
-            <!-- Quantized Model -->
-            <div class="bg-white rounded-lg shadow overflow-hidden">
-                <div class="bg-indigo-800 text-white px-4 py-3 flex justify-between items-center">
-                    <div>
-                        <span id="quantized-model-name" class="font-medium">Quantized Model</span>
-                        <span id="quantized-model-size" class="text-xs text-indigo-300 ml-2">-</span>
-                    </div>
-                    <div class="flex items-center space-x-2">
-                        <span id="quantized-status"
-                            class="text-xs px-2 py-1 rounded-full bg-indigo-600">Disconnected</span>
-                    </div>
-                </div>
-                <div id="quantized-chat" class="h-96 overflow-y-auto p-4 space-y-4 bg-indigo-50">
-                    <div class="text-center text-indigo-500 py-10">
-                        <i class="fas fa-bolt text-4xl mb-2"></i>
-                        <p>Connect to quantized model to start benchmarking</p>
-                    </div>
-                </div>
-                <div class="bg-indigo-100 px-4 py-2 border-t border-indigo-200">
-                    <div class="grid grid-cols-3 gap-2 text-xs">
-                        <div>
-                            <div class="text-indigo-500">TTFT</div>
-                            <div id="quantized-ttft" class="font-medium">- ms</div>
-                        </div>
-                        <div>
-                            <div class="text-indigo-500">ITL</div>
-                            <div id="quantized-itl" class="font-medium">- ms</div>
-                        </div>
-                        <div>
-                            <div class="text-indigo-500">Throughput</div>
-                            <div id="quantized-throughput" class="font-medium">- t/s</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Input Area -->
-        <div class="bg-white rounded-lg shadow p-4">
-            <div class="flex space-x-4">
-                <div class="flex-grow">
-                    <textarea id="user-input" rows="2"
-                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3 border"
-                        placeholder="Type your message here..."></textarea>
-                </div>
-                <div>
-                    <button id="send-btn"
-                        class="h-full bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 transition disabled:opacity-50"
-                        disabled>
-                        <i class="fas fa-paper-plane mr-2"></i>Send
-                    </button>
-                </div>
-            </div>
-            <div class="mt-2 flex justify-between items-center text-xs text-gray-500">
-                <div>
-                    <span id="token-count">0</span> tokens
-                </div>
-                <div class="flex items-center space-x-2">
-                    <span>Streaming:</span>
-                    <label class="inline-flex items-center">
-                        <input type="checkbox" id="stream-toggle" checked
-                            class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-offset-0 focus:ring-blue-200 focus:ring-opacity-50">
-                        <span class="ml-2">Enabled</span>
-                    </label>
-                </div>
-            </div>
-        </div>
+        </div> <!-- end chat-section -->
     </main>
 
     <script>
@@ -297,57 +321,106 @@
         function initPerformanceChart() {
             const ctx = document.getElementById('performance-chart').getContext('2d');
             performanceChart = new Chart(ctx, {
-                type: 'bar',
+                type: 'line',
                 data: {
-                    labels: ['TTFT', 'ITL', 'Throughput'],
+                    labels: [],
                     datasets: [
                         {
-                            label: 'Baseline',
-                            data: [0, 0, 0],
-                            backgroundColor: 'rgba(75, 85, 99, 0.6)',
+                            label: 'Baseline ITL',
+                            data: [],
                             borderColor: 'rgba(75, 85, 99, 1)',
-                            borderWidth: 1
+                            backgroundColor: 'transparent',
+                            yAxisID: 'y'
                         },
                         {
-                            label: 'Quantized',
-                            data: [0, 0, 0],
-                            backgroundColor: 'rgba(79, 70, 229, 0.6)',
-                            borderColor: 'rgba(79, 70, 229, 1)',
-                            borderWidth: 1
+                            label: 'Quantized ITL',
+                            data: [],
+                            borderColor: 'rgba(204, 0, 0, 1)',
+                            backgroundColor: 'transparent',
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'Baseline t/s',
+                            data: [],
+                            borderColor: 'rgba(75, 85, 99, 0.6)',
+                            backgroundColor: 'transparent',
+                            yAxisID: 'throughput-axis'
+                        },
+                        {
+                            label: 'Quantized t/s',
+                            data: [],
+                            borderColor: 'rgba(204, 0, 0, 0.6)',
+                            backgroundColor: 'transparent',
+                            yAxisID: 'throughput-axis'
                         }
                     ]
                 },
                 options: {
                     responsive: true,
+                    interaction: { mode: 'index', intersect: false },
+                    stacked: false,
                     scales: {
+                        x: { title: { display: true, text: 'Request #' } },
                         y: {
-                            beginAtZero: true
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            position: 'top',
+                            type: 'linear',
+                            position: 'left',
+                            title: { display: true, text: 'ITL (ms)' }
                         },
-                        tooltip: {
-                            callbacks: {
-                                label: function (context) {
-                                    let label = context.dataset.label || '';
-                                    if (label) {
-                                        label += ': ';
-                                    }
-                                    if (context.parsed.y !== null) {
-                                        if (context.dataIndex === 2) { // Throughput
-                                            label += context.parsed.y.toFixed(2) + ' tokens/s';
-                                        } else { // TTFT and ITL
-                                            label += context.parsed.y.toFixed(2) + ' ms';
-                                        }
-                                    }
-                                    return label;
-                                }
-                            }
+                        'throughput-axis': {
+                            type: 'linear',
+                            position: 'right',
+                            title: { display: true, text: 'Throughput (tokens/s)' },
+                            grid: { drawOnChartArea: false }
                         }
                     }
                 }
+            });
+        }
+
+        // Tab switching logic
+        const tabChatBtn = document.getElementById('tab-chat');
+        const tabSetupBtn = document.getElementById('tab-setup');
+        const tabHistoryBtn = document.getElementById('tab-history');
+
+        function switchTab(tab) {
+            ['chat', 'setup', 'history'].forEach(name => {
+                const sec = document.getElementById(`${name}-section`);
+                if (sec) sec.classList.toggle('hidden', name !== tab);
+                const btn = document.getElementById(`tab-${name}`);
+                if (btn) {
+                    btn.classList.toggle('bg-blue-600', name === tab);
+                    btn.classList.toggle('text-white', name === tab);
+                    btn.classList.toggle('bg-gray-200', name !== tab);
+                    btn.classList.toggle('text-gray-800', name !== tab);
+                }
+            });
+            // When switching to history, render the table
+            if (tab === 'history') renderHistoryTable();
+        }
+
+        // Default to chat tab
+        switchTab('chat');
+
+        // Tab button handlers
+        if (tabChatBtn) tabChatBtn.addEventListener('click', () => switchTab('chat'));
+        if (tabSetupBtn) tabSetupBtn.addEventListener('click', () => switchTab('setup'));
+        if (tabHistoryBtn) tabHistoryBtn.addEventListener('click', () => switchTab('history'));
+        // Render history table when needed
+        function renderHistoryTable() {
+            const history = JSON.parse(localStorage.getItem('benchmark_history') || '[]');
+            const tbody = document.getElementById('history-table-body');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+            history.forEach(entry => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="px-2 py-1">${entry.timestamp}</td>
+                    <td class="px-2 py-1">${entry.baseline_itl.toFixed(2)}</td>
+                    <td class="px-2 py-1">${entry.quantized_itl.toFixed(2)}</td>
+                    <td class="px-2 py-1">${entry.baseline_throughput.toFixed(2)}</td>
+                    <td class="px-2 py-1">${entry.quantized_throughput.toFixed(2)}</td>
+                `;
+                tbody.appendChild(tr);
             });
         }
 
@@ -434,6 +507,120 @@
             return contentDiv;
         }
 
+        // Batch request handling
+        async function sendBatchRequests(url, messages, temperature, maxTokens, stream, modelType) {
+            const concurrentRequests = 1; // fixed batch size 1
+            const requests = [];
+
+            // Create array of request promises
+            for (let i = 0; i < concurrentRequests; i++) {
+                const isFirstRequest = i === 0;
+                const contentDiv = isFirstRequest && stream ?
+                    document.querySelector(`#${modelType}-chat .streaming-content`) : null;
+
+                const requestPromise = fetch(`${url}/chat/completions`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        model: modelType === 'baseline' ? baselineStats.model : quantizedStats.model,
+                        messages: messages,
+                        temperature: temperature,
+                        max_tokens: maxTokens,
+                        stream: stream
+                    })
+                }).then(async response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    const stats = modelType === 'baseline' ? baselineStats : quantizedStats;
+
+                    if (stream) {
+                        const reader = response.body.getReader();
+                        const decoder = new TextDecoder();
+                        let buffer = '';
+                        let firstToken = true;
+                        let tokens = 0;
+
+                        while (true) {
+                            const { done, value } = await reader.read();
+                            if (done) break;
+
+                            buffer += decoder.decode(value, { stream: true });
+                            const lines = buffer.split('\n');
+                            buffer = lines.pop();
+
+                            for (const line of lines) {
+                                if (line.startsWith('data: ') && !line.includes('[DONE]')) {
+                                    try {
+                                        const data = JSON.parse(line.substring(6));
+                                        if (data.choices && data.choices[0].delta && data.choices[0].delta.content) {
+                                            const token = data.choices[0].delta.content;
+                                            if (isFirstRequest && contentDiv) {
+                                                contentDiv.textContent += token;
+                                            }
+
+                                            if (firstToken) {
+                                                stats.ttft = Date.now() - stats.startTime;
+                                                firstToken = false;
+                                            } else {
+                                                stats.itl = Date.now() - stats.lastTokenTime;
+                                            }
+
+                                            stats.lastTokenTime = Date.now();
+                                            tokens++;
+                                        }
+                                    } catch (e) {
+                                        console.error('Error parsing stream data:', e);
+                                    }
+                                }
+                            }
+                        }
+                        return tokens;
+                    } else {
+                        const data = await response.json();
+                        const content = data.choices[0].message.content;
+                        if (isFirstRequest && contentDiv) {
+                            contentDiv.textContent = content;
+                        }
+
+                        // Estimate tokens for non-streaming
+                        const tokens = Math.ceil(content.split(' ').length * 1.33);
+                        stats.ttft = Date.now() - stats.startTime;
+                        return tokens;
+                    }
+                });
+
+                requests.push(requestPromise);
+            }
+
+            // Wait for all requests to complete and get token counts
+            const tokenCounts = await Promise.all(requests);
+
+            // Calculate total tokens and average metrics
+            const stats = modelType === 'baseline' ? baselineStats : quantizedStats;
+            const totalTokens = tokenCounts.reduce((sum, count) => sum + count, 0);
+            const duration = (Date.now() - stats.startTime) / 1000;
+
+            // Update stats
+            stats.tokens = totalTokens;
+            stats.throughput = totalTokens / duration;
+
+            if (stats.ttft) {
+                stats.ttft = stats.ttft / concurrentRequests;
+            }
+            if (stats.itl) {
+                stats.itl = stats.itl / concurrentRequests;
+            }
+
+            // Update UI
+            document.getElementById(`${modelType}-ttft`).textContent = stats.ttft ? `${stats.ttft.toFixed(0)} ms` : '- ms';
+            document.getElementById(`${modelType}-itl`).textContent = stats.itl ? `${stats.itl.toFixed(0)} ms` : '- ms';
+            document.getElementById(`${modelType}-throughput`).textContent = `${stats.throughput.toFixed(2)} t/s`;
+        }
+
         // Send message to both models
         async function sendMessage() {
             const message = userInput.value.trim();
@@ -475,34 +662,20 @@
             quantizedStats.itl = null;
 
             // Create streaming content divs
-            let baselineContentDiv, quantizedContentDiv;
             if (stream) {
-                baselineContentDiv = addMessage(baselineChat, 'assistant', '', true);
-                quantizedContentDiv = addMessage(quantizedChat, 'assistant', '', true);
+                addMessage(baselineChat, 'assistant', '', true);
+                addMessage(quantizedChat, 'assistant', '', true);
             }
 
             try {
-                // Call both models simultaneously
+                // Call both models with batch requests
                 const baselineUrl = document.getElementById('baseline-url').value;
                 const quantizedUrl = document.getElementById('quantized-url').value;
 
-                const baselinePromise = callModel(baselineUrl, messages, temperature, maxTokens, stream, baselineContentDiv, 'baseline');
-                const quantizedPromise = callModel(quantizedUrl, messages, temperature, maxTokens, stream, quantizedContentDiv, 'quantized');
+                const baselinePromise = sendBatchRequests(baselineUrl, messages, temperature, maxTokens, stream, 'baseline');
+                const quantizedPromise = sendBatchRequests(quantizedUrl, messages, temperature, maxTokens, stream, 'quantized');
 
                 await Promise.all([baselinePromise, quantizedPromise]);
-
-                // Calculate final throughput
-                if (baselineStats.tokens > 0 && baselineStats.startTime) {
-                    const duration = (Date.now() - baselineStats.startTime) / 1000;
-                    baselineStats.throughput = baselineStats.tokens / duration;
-                    document.getElementById('baseline-throughput').textContent = baselineStats.throughput.toFixed(2) + ' t/s';
-                }
-
-                if (quantizedStats.tokens > 0 && quantizedStats.startTime) {
-                    const duration = (Date.now() - quantizedStats.startTime) / 1000;
-                    quantizedStats.throughput = quantizedStats.tokens / duration;
-                    document.getElementById('quantized-throughput').textContent = quantizedStats.throughput.toFixed(2) + ' t/s';
-                }
 
                 // Update summary stats
                 updateSummaryStats();
@@ -514,107 +687,6 @@
             } finally {
                 sendBtn.disabled = false;
                 sendBtn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i>Send';
-            }
-        }
-
-        // Call a single model
-        async function callModel(url, messages, temperature, maxTokens, stream, contentDiv, modelType) {
-            const stats = modelType === 'baseline' ? baselineStats : quantizedStats;
-
-            const payload = {
-                model: stats.model,
-                messages: messages,
-                temperature: temperature,
-                max_tokens: maxTokens,
-                stream: stream
-            };
-
-            if (stream) {
-                // Streaming response
-                const response = await fetch(`${url}/chat/completions`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(payload)
-                });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                const reader = response.body.getReader();
-                const decoder = new TextDecoder();
-                let buffer = '';
-                let firstToken = true;
-
-                while (true) {
-                    const { done, value } = await reader.read();
-                    if (done) break;
-
-                    buffer += decoder.decode(value, { stream: true });
-
-                    // Process each complete line
-                    const lines = buffer.split('\n');
-                    buffer = lines.pop(); // Keep incomplete line in buffer
-
-                    for (const line of lines) {
-                        if (line.startsWith('data: ') && !line.includes('[DONE]')) {
-                            try {
-                                const data = JSON.parse(line.substring(6));
-                                if (data.choices && data.choices[0].delta && data.choices[0].delta.content) {
-                                    const token = data.choices[0].delta.content;
-                                    contentDiv.textContent += token;
-
-                                    // Scroll chat window to show latest content
-                                    const chatElement = document.getElementById(`${modelType}-chat`);
-                                    chatElement.scrollTop = chatElement.scrollHeight;
-
-                                    // Record first token time (TTFT)
-                                    if (firstToken) {
-                                        stats.ttft = Date.now() - stats.startTime;
-                                        document.getElementById(`${modelType}-ttft`).textContent = stats.ttft + ' ms';
-                                        firstToken = false;
-                                    } else {
-                                        // Record inter-token latency (ITL)
-                                        stats.itl = Date.now() - (stats.lastTokenTime || stats.startTime);
-                                        document.getElementById(`${modelType}-itl`).textContent = stats.itl + ' ms';
-                                    }
-
-                                    stats.lastTokenTime = Date.now();
-                                    stats.tokens++;
-                                }
-                            } catch (e) {
-                                console.error('Error parsing stream data:', e);
-                            }
-                        }
-                    }
-                }
-            } else {
-                // Non-streaming response
-                const response = await fetch(`${url}/chat/completions`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(payload)
-                });
-
-                const data = await response.json();
-                const content = data.choices[0].message.content;
-                contentDiv.textContent = content;
-
-                // Calculate metrics for non-streaming
-                stats.ttft = Date.now() - stats.startTime;
-                document.getElementById(`${modelType}-ttft`).textContent = stats.ttft + ' ms';
-
-                // Estimate tokens (this would be better with actual token count from API)
-                stats.tokens = content.split(' ').length * 1.33; // Rough estimate
-
-                // Calculate throughput
-                const duration = (Date.now() - stats.startTime) / 1000;
-                stats.throughput = stats.tokens / duration;
-                document.getElementById(`${modelType}-throughput`).textContent = stats.throughput.toFixed(2) + ' t/s';
             }
         }
 
@@ -643,19 +715,26 @@
                 document.getElementById('itl-improvement').textContent = `${itlImprovement}%`;
             }
 
-            // Update chart
-            if (performanceChart) {
-                performanceChart.data.datasets[0].data = [
-                    baselineStats.ttft || 0,
-                    baselineStats.itl || 0,
-                    baselineStats.throughput || 0
-                ];
-                performanceChart.data.datasets[1].data = [
-                    quantizedStats.ttft || 0,
-                    quantizedStats.itl || 0,
-                    quantizedStats.throughput || 0
-                ];
+            // Update chart with new data point
+            if (performanceChart && baselineStats.itl != null && baselineStats.throughput != null) {
+                const idx = performanceChart.data.labels.length + 1;
+                performanceChart.data.labels.push(idx);
+                performanceChart.data.datasets[0].data.push(baselineStats.itl || 0);
+                performanceChart.data.datasets[1].data.push(quantizedStats.itl || 0);
+                performanceChart.data.datasets[2].data.push(baselineStats.throughput || 0);
+                performanceChart.data.datasets[3].data.push(quantizedStats.throughput || 0);
                 performanceChart.update();
+
+                // Persist history
+                const history = JSON.parse(localStorage.getItem('benchmark_history') || '[]');
+                history.push({
+                    timestamp: new Date().toLocaleString(),
+                    baseline_itl: baselineStats.itl || 0,
+                    quantized_itl: quantizedStats.itl || 0,
+                    baseline_throughput: baselineStats.throughput || 0,
+                    quantized_throughput: quantizedStats.throughput || 0
+                });
+                localStorage.setItem('benchmark_history', JSON.stringify(history));
             }
         }
 
@@ -699,16 +778,16 @@
             document.getElementById('quantized-model-name').textContent = 'Quantized Model';
             document.getElementById('quantized-model-size').textContent = '-';
             document.getElementById('quantized-status').textContent = 'Disconnected';
-            document.getElementById('quantized-status').className = 'text-xs px-2 py-1 rounded-full bg-indigo-600';
+            document.getElementById('quantized-status').className = 'text-xs px-2 py-1 rounded-full bg-red-600';
             document.getElementById('quantized-ttft').textContent = '- ms';
             document.getElementById('quantized-itl').textContent = '- ms';
             document.getElementById('quantized-throughput').textContent = '- t/s';
-            quantizedChat.innerHTML = '<div class="text-center text-indigo-500 py-10"><i class="fas fa-bolt text-4xl mb-2"></i><p>Connect to quantized model to start benchmarking</p></div>';
+            quantizedChat.innerHTML = '<div class="text-center text-red-500 py-10"><i class="fas fa-bolt text-4xl mb-2"></i><p>Connect to quantized model to start benchmarking</p></div>';
 
             document.getElementById('speed-improvement').textContent = '-';
             document.getElementById('ttft-improvement').textContent = '-';
             document.getElementById('itl-improvement').textContent = '-';
-            document.getElementById('memory-reduction').textContent = '-';
+            // memory-reduction removed
 
             connectBtn.disabled = false;
             connectBtn.innerHTML = '<i class="fas fa-plug mr-2"></i>Connect to Models';
@@ -717,18 +796,18 @@
             sendBtn.disabled = true;
             sendBtn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i>Send';
 
-            // Reset chart
+            // Reset chart data
             if (performanceChart) {
-                performanceChart.data.datasets[0].data = [0, 0, 0];
-                performanceChart.data.datasets[1].data = [0, 0, 0];
+                performanceChart.data.labels = [];
+                performanceChart.data.datasets.forEach(ds => { ds.data = []; });
                 performanceChart.update();
             }
         }
 
-        // Show history
+        // Show history (header button)
         function showHistory() {
-            alert('History feature would show previous benchmark results here.');
-            // In a real implementation, this would show a modal with previous test results
+            // Switch to History tab
+            switchTab('history');
         }
 
         // Event listeners
